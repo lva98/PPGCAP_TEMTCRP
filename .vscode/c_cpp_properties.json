@@ -4,12 +4,13 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "~/.local/share/vcpkg/installed/x64-linux/include"
+                "${env:VCPKG_ROOT}/installed/x64-linux/include",
+                "/usr/include/opencv4"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
+            "cStandard": "c20",
+            "cppStandard": "gnu++20",
             "intelliSenseMode": "linux-gcc-x64"
         }
     ],

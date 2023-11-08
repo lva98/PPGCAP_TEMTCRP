@@ -2,21 +2,42 @@ cmake_minimum_required(VERSION 3.8)
 
 project(TEMTC)
 
+# Especifica a pasta de build
+set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
+if(NOT DEFINED ENV{VCPKG_ROOT})
+    message(FATAL_ERROR "VCPKG_ROOT is not set. Please make sure it is defined.")
+endif()
+
 # Configuração do VCPKG
-set(CMAKE_TOOLCHAIN_FILE "$ENV{HOME}/.local/share/vcpkg/scripts/buildsystems/vcpkg.cmake")
-include("/home/leonardo/.local/share/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+include("$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
 # Configuração do C++ para o projeto
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Localiza a biblioteca dlib
-find_path(MLPACK_INCLUDE_DIRS "mlpack/mlpack.hpp")
+# find_path(MLPACK_INCLUDE_DIRS "mlpack/mlpack.hpp")
 find_package(OpenCV CONFIG REQUIRED)
+find_package(OpenCV 4 REQUIRED)
+find_path(RAPIDCSV_INCLUDE_DIRS "rapidcsv.h")
+
 
 # Adiciona os arquivos do código fonte
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB SOURCES "src/main.cpp")
+file(GLOB SOURCES_SPLIT "src/split.cpp")
+
+file(GLOB KNN_SOURCES "src/knn.cpp")  # Adapte o caminho do diretório comum
+file(GLOB KNN_HEADERS "src/knn.hpp")  # Adapte o caminho do diretório comum
+
+file(GLOB COMMON_SOURCES "src/common.cpp")  # Adapte o caminho do diretório comum
+file(GLOB COMMON_HEADERS "src/common.hpp")  # Adapte o caminho do diretório comum
 
 # Cria o executável e vincula a biblioteca dlib
-add_executable(main ${SOURCES})
-target_include_directories(main PRIVATE ${MLPACK_INCLUDE_DIRS})
+add_executable(main ${SOURCES} ${COMMON_SOURCES} ${KNN_SOURCES})
 target_link_libraries(main PRIVATE opencv_ml opencv_dnn opencv_core opencv_flann)
+target_include_directories(main PRIVATE ${RAPIDCSV_INCLUDE_DIRS})
+
+add_executable(split ${SOURCES_SPLIT})
+target_include_directories(split PRIVATE ${RAPIDCSV_INCLUDE_DIRS})
