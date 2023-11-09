@@ -14,7 +14,7 @@ std::map<std::string, int> common::map_index;
 * map_index: encontra o indice do rótulo a partir do nome
 * map_label: encontra o nome do rótulo a partir do índice
 */
-common::read_output common::read (std::string file_name) {
+common::read_output common::read (std::string file_name, int label_column) {
     rapidcsv::Document doc(file_name, rapidcsv::LabelParams(-1, -1));
     size_t row_count = doc.GetRowCount();
     size_t col_count = doc.GetColumnCount();
@@ -28,7 +28,6 @@ common::read_output common::read (std::string file_name) {
     for (const auto& item : vec_labels) {
         if (!map_index.contains(item)) {
             int count = map_index.size();
-            std::cout << item << "--" << count << std::endl;
             map_index[item] = count;
             map_label[count] = item;
         }
@@ -37,7 +36,7 @@ common::read_output common::read (std::string file_name) {
     for (size_t i = 0; i < row_count; ++i) {
         int label = -1;
         for (size_t j = 0; j < col_count; ++j) {
-            if (j == col_count - 1) {
+            if (label_column == j || (label_column == -1 && j == col_count - 1)) {
                 std::string value = doc.GetCell<std::string>(j, i);
                 mat_label.at<int>(i) = map_index[value];
                 label = map_index[value];

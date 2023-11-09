@@ -67,13 +67,17 @@ void save_to_file (vector<vector<string>> &vec, string name) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 5) {
+    if (argc != 5 && argc != 6) {
         std::cout << "Use: ./split data.csv p1 p2 p3" << std::endl;
         return 1;
     }
 
     std::string inputFile = argv[1];
     double ratios[3] = {std::stod(argv[2]) / 100.0, std::stod(argv[3]) / 100.0, std::stod(argv[4]) / 100.0};
+    int label_column = -1;
+    if (argc == 6) {
+      label_column = std::stoi(argv[5]);
+    }
 
     rapidcsv::Document doc(inputFile, rapidcsv::LabelParams(-1, -1));
 
@@ -86,11 +90,14 @@ int main(int argc, char *argv[]) {
 
       for (int j = 0; j < doc.GetColumnCount(); ++j) {
         auto cell_value = doc.GetCell<std::string>(j, i);
-        if (j == doc.GetColumnCount() - 1) {
+        if ((label_column == -1 && j == doc.GetColumnCount() - 1) || j == label_column) {
           label = cell_value;
+        } else {
+          row.push_back(cell_value);
         }
-        row.push_back(cell_value);
       }
+
+      row.push_back(label);
 
       map_count[label]++;
       data[label].push_back(row);

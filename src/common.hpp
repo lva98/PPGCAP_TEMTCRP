@@ -21,8 +21,8 @@ namespace common {
 
   void swap_rows (cv::Mat &mat_a, int row_a, cv::Mat &mat_b, int row_b);
   int random_index (std::vector<int> vec);
-  read_output read (std::string file_name);
-  std::string row_key (cv::Mat &mat, int row);  
+  read_output read (std::string file_name, int label_column);
+  std::string row_key (cv::Mat &mat, int row);
 }
 
 #endif
