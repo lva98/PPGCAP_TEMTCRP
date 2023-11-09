@@ -5,18 +5,24 @@
 #include <opencv2/ml.hpp>
 #include <rapidcsv.h>
 #include <map>
+#include <random>
 
 namespace common {
+  extern std::map<int, std::string> map_label;
+  extern std::map<std::string, int> map_index;
+
   struct read_output {
     cv::Mat data;
     cv::Mat label;
-    std::map<std::string, int> map_index;
-    std::map<int, std::string> map_label;
-    read_output(cv::Mat& d, cv::Mat& l, std::map<std::string, int>& mi, std::map<int, std::string>& ml)
-      : data(d), label(l), map_index(mi), map_label(ml) {}
+    std::map<int, std::vector<int>> map_label_index;
+    read_output(cv::Mat& d, cv::Mat& l, std::map<int, std::vector<int>> mli)
+      : data(d), label(l), map_label_index(mli) {}
   };
 
-  read_output read(std::string file_name);
+  void swap_rows (cv::Mat &mat_a, int row_a, cv::Mat &mat_b, int row_b);
+  int random_index (std::vector<int> vec);
+  read_output read (std::string file_name);
+  std::string row_key (cv::Mat &mat, int row);  
 }
 
 #endif

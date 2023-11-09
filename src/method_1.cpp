@@ -1,5 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/ml.hpp>
+#include <opencv2/core/utils/logger.hpp>
 #include <rapidcsv.h>
 #include <vector>
 #include <map>
@@ -10,7 +11,8 @@ using namespace cv;
 using namespace cv::ml;
 using namespace std;
 
-int main(int argc, char *argv[]) {
+int main (int argc, char *argv[]) {
+    cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_ERROR);
     if (argc != 4) {
         std::cout << "Use: ./split z1.csv z2.csv z3.csv" << std::endl;
         return 1;
@@ -22,13 +24,61 @@ int main(int argc, char *argv[]) {
 
     common::read_output output_z1 = common::read(z1_name);
     common::read_output output_z2 = common::read(z2_name);
+    common::read_output output_z3 = common::read(z3_name);
 
-    cout << output_z1.data << endl << output_z1.label << endl;
-
-    for (int k = 3; k <= 13; k += 2) {
+    int t_count = 25;
+    int best_k, successes = 0;
+    printf("i,K,Successes,Mistakes\n");
+    for (int k = 3, i = 0; k <= 13; k += 1, ++i) {
         knn::output output = knn::execute(k, output_z1.data, output_z1.label, output_z2.data, output_z2.label);
-        cout << output.successes << " " << output.mistakes << endl;
+        if (output.successes > successes) {
+            successes = output.successes;
+            best_k = k;
+        }
+        printf("%d,%d,%d,%d\n", i, k, output.successes, output.mistakes);
+        if (output.mistakes == 0) {
+            break;
+        }
     }
+
+    printf("Best K = %d\n", best_k);
+    printf("\n---\n\n");
+    cv::Mat best_z1;
+    cv::Mat best_z1_labels;
+
+    printf("t,successes,mistakes\n");
+    successes = 0;
+    for (int t = 0; t < t_count; t++) {
+        knn::output output = knn::execute(best_k, output_z1.data, output_z1.label, output_z2.data, output_z2.label);
+        printf("%d,%d,%d\n", t, output.successes, output.mistakes);
+
+        if (output.successes > successes) {
+            best_z1 = output_z1.data.clone();
+            best_z1_labels = output_z1.label.clone();
+            successes = output.successes;
+        }
+
+        if (output.mistakes == 0) {
+            break;
+        }
+
+        for (const auto &pair: output.mistakes_data) {
+            int label = pair.first;
+
+            std::vector<int> &indexes_z1 = output_z1.map_label_index[label];
+            std::vector<int> indexes_z2 = pair.second;
+
+            for (const auto index_z2: indexes_z2) {
+                int random_index_z1 = common::random_index(indexes_z1);
+                common::swap_rows(output_z1.data, random_index_z1, output_z2.data, index_z2);
+            }
+        }
+    }
+
+    cout << "best successes = " << successes << endl;
+
+    knn::output output = knn::execute(best_k, best_z1, best_z1_labels, output_z3.data, output_z3.label);
+    printf("\n\n%d %d\n", output.successes, output.mistakes);
 
     // cout << output.label << endl << output.map_index.size() << endl;
     // Ptr<KNearest> knn = KNearest::create();

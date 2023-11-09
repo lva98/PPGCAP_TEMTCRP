@@ -93,11 +93,6 @@ int main(int argc, char *argv[]) {
       }
 
       map_count[label]++;
-
-      if (!data.contains(label)) {
-        data[label] = vector<vector<string>>();
-      }
-
       data[label].push_back(row);
     }
 
