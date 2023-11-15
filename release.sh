@@ -4,4 +4,5 @@ rm -rf release
 mkdir release
 zip -j release-x64-linux.zip build/method_1 build/method_2 build/split
 zip -r release-x64-linux.zip bases/*
+zip -r release-x64-linux.zip results/*
 mv release-x64-linux.zip release

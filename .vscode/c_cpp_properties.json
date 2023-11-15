@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/lva98/.local/share/vcpkg/installed/x64-linux/include",
+                "{ENV:VCPKG_ROOT}/installed/x64-linux/include",
                 "/usr/include/opencv4"
             ],
             "defines": [],

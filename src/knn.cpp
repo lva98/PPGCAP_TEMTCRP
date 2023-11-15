@@ -12,6 +12,7 @@ knn::output knn::execute (int k, cv::Mat& train_data, cv::Mat& train_label, cv::
   std::map<int, int> success_by_labels;
   std::map<int, std::vector<int>> successes_data;
   std::map<int, std::vector<int>> mistakes_data;
+  std::vector<int> attempts;
   int mistakes = 0;
   int successes = 0;
 
@@ -25,6 +26,7 @@ knn::output knn::execute (int k, cv::Mat& train_data, cv::Mat& train_label, cv::
   for (int i = 0; i < predicts.rows; ++i) {
     const int attempt = (int) predicts.at<float>(i, 0);
     const int answer = test_label.at<int>(i, 0);
+    attempts.push_back(attempt);
 
     bool is_correct = attempt == answer;
     if (is_correct) {
@@ -39,6 +41,6 @@ knn::output knn::execute (int k, cv::Mat& train_data, cv::Mat& train_label, cv::
       mistakes_by_labels[attempt]++;
     }
   }
-
-  return knn::output(result, mistakes_by_labels, success_by_labels, successes_data, mistakes_data, mistakes, successes);
+  
+  return knn::output(result, attempts, mistakes_by_labels, success_by_labels, successes_data, mistakes_data, mistakes, successes);
 }

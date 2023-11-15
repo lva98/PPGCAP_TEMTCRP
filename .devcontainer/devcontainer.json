@@ -1,0 +1,9 @@
+{
+  "name": "temtcrp",
+  "image": "temtcrp",
+  "extensions": [
+  ],
+  "settings": {
+  },
+  "forwardPorts": [3000]  // Portas a serem encaminhadas para o host
+}
